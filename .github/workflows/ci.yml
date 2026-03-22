@@ -14,6 +14,6 @@ jobs:
       service_name: iot-agent-stream-worker
       project_type: maven
       java_version: "21"
-      values_file: ${{ github.event_name == 'pull_request' && 'Helm/sbx.yaml' || 'Helm/dev.yaml' }}
+      values_file: ${{ github.event_name == 'pull_request' && 'Helm/values-sbx.yaml' || 'Helm/values-dev.yaml' }}
       chart_type: deployment
       namespace: ${{ github.event_name == 'pull_request' && 'iotag-sbx' || 'iotag-dev' }}
