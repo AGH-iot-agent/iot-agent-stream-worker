@@ -1,7 +1,7 @@
 # Default values for a "deployment"
 
 # REQUIRED for you to set a value here, name of your service
-name: "iot-agent-dashboard-api"
+name: "iot-agent-stream-worker"
 
 # Number of pods in deployment, default of not highly available (override on HA environments)
 replicaCount: 1
@@ -74,10 +74,10 @@ istio:
   virtualService:
     enabled: true
     # If we want to  the name, RECOMMEND YOU DO NOT DO THIS UNLESS YOU NEED, it has a sane default
-    name: "iot-agent-dashboard-api"
+    name: "iot-agent-stream-worker"
     annotations: {}
     hosts:
-      - iot-agent-dashboard-api-dev.iotag-dev.com
+      - iot-agent-stream-worker-dev.iotag-dev.com
     # Gateways list, if empty chart auto-selects istio-system/istio-ingressgateway when present
     gateways:
       - istio-system/istio-ingressgateway
@@ -88,7 +88,7 @@ istio:
               prefix: /
         route:
           - destination:
-              host: iot-agent-dashboard-api.iotag-dev.svc.cluster.local
+              host: iot-agent-stream-worker.iotag-dev.svc.cluster.local
               port:
                 number: 80
     # http: []
@@ -118,7 +118,7 @@ ingress:
   pathType: ImplementationSpecific # or Prefix
   annotations: {}
   hosts:
-    - host: iot-agent-dashboard-api-dev.iotag-dev
+    - host: iot-agent-stream-worker-dev.iotag-dev
       paths:
         - /
   tls: []
