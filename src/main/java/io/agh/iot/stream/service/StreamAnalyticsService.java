@@ -18,13 +18,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Service
@@ -41,6 +43,7 @@ public class StreamAnalyticsService {
     private final Map<String, Deque<ProcessedSnapshot>> recentByDevice = new ConcurrentHashMap<>();
     private final Map<String, ProcessedSnapshot> latestByDevice = new ConcurrentHashMap<>();
     private final AtomicLong processedEvents = new AtomicLong();
+    private final ScheduledExecutorService mqttReconnectExecutor = Executors.newSingleThreadScheduledExecutor();
 
     private MqttClient mqttClient;
 
@@ -54,11 +57,12 @@ public class StreamAnalyticsService {
 
     @PostConstruct
     public void init() {
-        connect();
+        scheduleConnect(0);
     }
 
     @PreDestroy
     public void shutdown() {
+        mqttReconnectExecutor.shutdownNow();
         if (mqttClient == null) {
             return;
         }
@@ -82,7 +86,15 @@ public class StreamAnalyticsService {
         return latestByDevice.size() * 12;
     }
 
+    private void scheduleConnect(long delaySeconds) {
+        mqttReconnectExecutor.schedule(this::connect, delaySeconds, TimeUnit.SECONDS);
+    }
+
     private void connect() {
+        if (mqttClient != null && mqttClient.isConnected()) {
+            return;
+        }
+
         try {
             mqttClient = new MqttClient(streamProperties.getMqttBrokerUri(), MqttClient.generateClientId());
             MqttConnectOptions options = new MqttConnectOptions();
@@ -94,6 +106,7 @@ public class StreamAnalyticsService {
                 @Override
                 public void connectionLost(Throwable cause) {
                     LOGGER.warn("MQTT connection lost: {}", cause != null ? cause.getMessage() : "unknown");
+                    scheduleConnect(10);
                 }
 
                 @Override
@@ -110,7 +123,8 @@ public class StreamAnalyticsService {
             mqttClient.subscribe("devices/+/status", 1);
             LOGGER.info("stream.mqtt.subscribed topics=devices/+/telemetry,devices/+/status");
         } catch (MqttException exception) {
-            throw new IllegalStateException("Unable to connect stream-worker to MQTT broker", exception);
+            LOGGER.warn("Unable to connect stream-worker to MQTT broker at {}: {}", streamProperties.getMqttBrokerUri(), exception.getMessage());
+            scheduleConnect(15);
         }
     }
 
