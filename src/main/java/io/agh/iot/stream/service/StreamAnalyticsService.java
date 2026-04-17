@@ -1,12 +1,16 @@
 package io.agh.iot.stream.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.agh.iot.stream.config.StreamProperties;
-import io.agh.iot.stream.model.DeviceStatusEvent;
-import io.agh.iot.stream.model.ProcessedSnapshot;
-import io.agh.iot.stream.model.TelemetryEvent;
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
@@ -18,16 +22,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.agh.iot.stream.config.StreamProperties;
+import io.agh.iot.stream.model.DeviceStatusEvent;
+import io.agh.iot.stream.model.ProcessedSnapshot;
+import io.agh.iot.stream.model.TelemetryEvent;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 
 @Service
 public class StreamAnalyticsService {
