@@ -162,10 +162,7 @@ additionalPorts: []
   #   protocol: TCP
 
 # Additional pod annotations
-podAnnotations:
-  service_name: "iot-agent-stream-worker"
-  iotag_service: "iot-agent-stream-worker"
-  iotag_env: "sbx"
+podAnnotations: {}
   # tick: "1528451892"
 
 # If you're using Kubernetes 1.20+ you'll want to enable this, this uses the new common label scheme
@@ -229,7 +226,6 @@ livenessProbe:
   port: default-service
   command:
     - ls -la /
-
 
 # readinessProbes are used to determine when a container is ready to start accepting traffic
 readinessProbe:
