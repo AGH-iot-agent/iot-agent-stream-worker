@@ -9,6 +9,13 @@ stream:
   mqtt-broker-uri: ${MQTT_BROKER_URI:tcp://iot-agent-mqtt-broker:1883}
   alert-api-base-url: ${ALERT_API_BASE_URL:http://iot-agent-alert-api:8080}
 
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          secret: ${JWT_SECRET:supersecretkey}
+
 management:
   endpoints:
     web:
