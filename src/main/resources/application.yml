@@ -10,7 +10,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://keycloak:8080/realms/master
+          jwk-set-uri: http://iot-agent-authentication:8080/.well-known/jwks.json
 
 stream:
   mqtt-broker-uri: ${MQTT_BROKER_URI:tcp://iot-agent-mqtt-broker:1883}
