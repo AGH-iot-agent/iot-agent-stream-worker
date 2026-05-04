@@ -1,0 +1,27 @@
+# Konfiguracja JWT Keycloak
+server:
+  port: 8080
+
+spring:
+  application:
+    name: iot-agent-stream-worker
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://iot-agent-authentication:8080/.well-known/jwks.json
+
+stream:
+  mqtt-broker-uri: ${MQTT_BROKER_URI:tcp://iot-agent-mqtt-broker:1883}
+  alert-api-base-url: ${ALERT_API_BASE_URL:http://iot-agent-alert-api:8080}
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
